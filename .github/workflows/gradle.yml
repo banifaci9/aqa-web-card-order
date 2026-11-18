@@ -1,0 +1,40 @@
+name: Gradle Selenium
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+          cache: gradle
+      - name: Run Selenium tests
+        shell: bash
+        run: |
+          java -jar ./artifacts/app-order.jar > sut.log 2>&1 &
+          sut_pid=$!
+          trap 'kill "$sut_pid" 2>/dev/null || true' EXIT
+          curl --fail --silent --show-error --retry 30 --retry-connrefused \
+            --retry-delay 1 --max-time 3 http://localhost:9999/ > /dev/null
+          ./gradlew test --info
+      - name: Upload test report and SUT log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-test-results
+          path: |
+            build/reports/tests/test/
+            build/test-results/test/
+            build/screenshots/
+            sut.log
