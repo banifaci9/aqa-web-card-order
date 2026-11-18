@@ -34,9 +34,7 @@ java -jar ./artifacts/app-order.jar
 
 Сборка `Gradle Selenium` запускается на push и pull request. Отчёты JUnit, скриншоты обнаруженных дефектов и лог сервиса доступны в артефакте `selenium-test-results`.
 
-<!-- После публикации замените OWNER/REPO фактическим именем публичного репозитория и снимите комментарий.
-[![Gradle Selenium](https://github.com/OWNER/REPO/actions/workflows/gradle.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/gradle.yml)
--->
+[![Gradle Selenium](https://github.com/banifaci9/aqa-web-card-order/actions/workflows/gradle.yml/badge.svg)](https://github.com/banifaci9/aqa-web-card-order/actions/workflows/gradle.yml)
 
 ## Дефекты учебного приложения
 
