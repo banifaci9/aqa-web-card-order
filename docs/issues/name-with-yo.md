@@ -28,4 +28,4 @@
 - OpenJDK 11.0.29 (Zulu), Selenium 4.29.0, Chrome Headless Shell 156.0.8078.79.
 - [Код теста](../../src/test/java/ru/netology/CardOrderTest.java).
 - Сервис Netology `artifacts/app-order.jar`. Строка лога запуска — `INFO Application - Responding at http://0.0.0.0:7777`.
-- Строка из отчёта JUnit — `AssertionFailedError: Форма отклонила ФИО с буквой ё`.
+- В отчёте JUnit — `TimeoutException` при ожидании сообщения `[data-test-id="order-success"]`.

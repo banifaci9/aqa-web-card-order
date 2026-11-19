@@ -28,10 +28,4 @@ dependencies {
 test {
     useJUnitPlatform()
     systemProperty 'sut.url', System.getProperty('sut.url', 'http://localhost:9999')
-    systemProperty 'chromeoptions.prefs', System.getProperty('chromeoptions.prefs', 'profile.password_manager_leak_detection=false')
-    ['webdriver.chrome.driver', 'chrome.binary'].each { property ->
-        if (System.getProperty(property)) {
-            systemProperty property, System.getProperty(property)
-        }
-    }
 }

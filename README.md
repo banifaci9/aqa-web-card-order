@@ -32,7 +32,7 @@ java -jar ./artifacts/app-order.jar
 
 ## GitHub Actions
 
-Сборка `Gradle Selenium` запускается на push и pull request. Отчёты JUnit, скриншоты обнаруженных дефектов и лог сервиса доступны в артефакте `selenium-test-results`.
+Сборка `Gradle Selenium` запускается на push и pull request. Результаты тестов видны в журнале шага `Run Selenium tests`.
 
 [![Gradle Selenium](https://github.com/banifaci9/aqa-web-card-order/actions/workflows/gradle.yml/badge.svg)](https://github.com/banifaci9/aqa-web-card-order/actions/workflows/gradle.yml)
 

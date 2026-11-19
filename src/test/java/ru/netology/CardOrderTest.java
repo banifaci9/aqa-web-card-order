@@ -9,8 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -18,15 +16,10 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 class CardOrderTest {
     private static final String VALID_NAME = "Иванова Анна";
@@ -47,22 +40,13 @@ class CardOrderTest {
 
     @BeforeAll
     static void setupDriver() {
-        if (System.getProperty("webdriver.chrome.driver") == null) {
-            WebDriverManager.chromedriver().setup();
-        }
+        WebDriverManager.chromedriver().setup();
     }
 
     @BeforeEach
     void openForm() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless", "--disable-dev-shm-usage", "--no-sandbox",
-                "--window-size=1280,1100");
-        String[] pref = System.getProperty("chromeoptions.prefs").split("=", 2);
-        options.setExperimentalOption("prefs", Map.of(pref[0], Boolean.parseBoolean(pref[1])));
-        String binary = System.getProperty("chrome.binary");
-        if (binary != null) {
-            options.setBinary(binary);
-        }
+        options.addArguments("--headless", "--disable-dev-shm-usage", "--no-sandbox");
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         driver.get(System.getProperty("sut.url"));
@@ -84,14 +68,8 @@ class CardOrderTest {
     }
 
     @Test
-    void acceptsRussianLetterYo() throws IOException {
+    void acceptsRussianLetterYo() {
         submit("Семёнова Алёна", VALID_PHONE, true);
-        if (!driver.findElements(INVALID_FIELDS).isEmpty()) {
-            saveScreenshot("name-with-yo");
-            String actualMessage = driver.findElement(INVALID_FIELDS)
-                    .findElement(By.cssSelector(".input__sub")).getText();
-            fail("Форма отклонила ФИО с буквой ё: " + actualMessage);
-        }
         assertSuccess();
     }
 
@@ -110,15 +88,8 @@ class CardOrderTest {
     }
 
     @Test
-    void rejectsPhoneWithLeadingSpace() throws IOException {
-        String invalidPhone = " " + VALID_PHONE;
-        fillForm(VALID_NAME, invalidPhone, true);
-        assertEquals(invalidPhone, driver.findElement(PHONE).getDomProperty("value"));
-        saveScreenshot("phone-before-submit");
-        driver.findElement(SUBMIT).click();
-        if (!driver.findElements(SUCCESS).isEmpty()) {
-            saveScreenshot("phone-with-leading-space");
-        }
+    void rejectsPhoneWithLeadingSpace() {
+        submit(VALID_NAME, " " + VALID_PHONE, true);
         assertFieldError("phone", "11 цифр");
     }
 
@@ -155,16 +126,12 @@ class CardOrderTest {
     }
 
     private void submit(String name, String phone, boolean agreement) {
-        fillForm(name, phone, agreement);
-        driver.findElement(SUBMIT).click();
-    }
-
-    private void fillForm(String name, String phone, boolean agreement) {
         driver.findElement(NAME).sendKeys(name);
         driver.findElement(PHONE).sendKeys(phone);
         if (agreement) {
             driver.findElement(AGREEMENT).click();
         }
+        driver.findElement(SUBMIT).click();
     }
 
     private void assertSuccess() {
@@ -173,23 +140,17 @@ class CardOrderTest {
     }
 
     private void assertFieldError(String field, String expectedMessage) {
-        WebElement invalid = assertOnlyInvalidField(field);
-        String actualMessage = invalid.findElement(By.cssSelector(".input__sub")).getText();
+        assertOnlyInvalidField(field);
+        By errorMessage = By.cssSelector("[data-test-id='" + field + "'].input_invalid .input__sub");
+        String actualMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
         assertTrue(actualMessage.contains(expectedMessage), () -> "Сообщение формы: " + actualMessage);
     }
 
-    private WebElement assertOnlyInvalidField(String field) {
+    private void assertOnlyInvalidField(String field) {
         assertTrue(driver.findElements(SUCCESS).isEmpty(),
                 "Форма приняла заявку с ошибкой в поле " + field);
         WebElement invalid = wait.until(ExpectedConditions.visibilityOfElementLocated(INVALID_FIELDS));
         assertEquals(1, driver.findElements(INVALID_FIELDS).size());
         assertEquals(field, invalid.getDomAttribute("data-test-id"));
-        return invalid;
-    }
-
-    private void saveScreenshot(String name) throws IOException {
-        Path path = Path.of("build", "screenshots", name + ".png");
-        Files.createDirectories(path.getParent());
-        Files.write(path, ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES));
     }
 }

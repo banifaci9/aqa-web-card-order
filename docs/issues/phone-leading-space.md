@@ -8,7 +8,7 @@
 4. В поле «Мобильный телефон» ввести один пробел, а затем `+79991234567`.
 5. Отметить согласие и нажать «Продолжить».
 
-Автотест — `./gradlew test -Dsut.url=http://localhost:7777 --tests 'ru.netology.CardOrderTest.rejectsPhoneWithLeadingSpace'`. Перед отправкой он проверяет, что введённое значение в DOM начинается с пробела.
+Автотест — `./gradlew test -Dsut.url=http://localhost:7777 --tests 'ru.netology.CardOrderTest.rejectsPhoneWithLeadingSpace'`.
 
 ## Ожидаемый результат
 
